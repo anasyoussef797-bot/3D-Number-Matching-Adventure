@@ -1,0 +1,6 @@
+{
+  "name": "3D Number Matching Adventure",
+  "description": "An interactive AAA 3D educational game for children aged 3-6 to master numbers and counting through matching quantities on floating 3D islands.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
