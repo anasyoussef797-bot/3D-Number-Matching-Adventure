@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Language, GameMode, ObjectType, LevelConfig, TRANSLATIONS, GameState } from './types';
 import { audioEngine } from './utils/audio';
 import { ThreeGame } from './components/ThreeGame';
@@ -79,8 +79,8 @@ const generateLevel = (mode: GameMode, previousNumbers: number[] = [], forcedTar
   // Convert set to array and shuffle
   const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
 
-  // Pick a random object categories
-  const objectCategories: ObjectType[] = ['apples', 'stars', 'balloons', 'blocks', 'fish', 'cars', 'trees', 'cats', 'dogs', 'pandas', 'bunnies', 'lions'];
+  // Pick a random object categories (Only apples as requested by user)
+  const objectCategories: ObjectType[] = ['apples'];
   const objectType = chooseRandom(objectCategories);
 
   return {
@@ -113,6 +113,10 @@ export default function App() {
   const [studentName, setStudentName] = useState<string>("");
   const [currentRound, setCurrentRound] = useState<number>(1);
   const [roundNumbersLeft, setRoundNumbersLeft] = useState<number[]>([]);
+
+  // Refs to track and immediately cancel transition timeouts
+  const nextLevelTimeoutRef = useRef<any>(null);
+  const celebrationTimeoutRef = useRef<any>(null);
 
   // Initialize and load historical highscores from browser local storage
   useEffect(() => {
@@ -239,19 +243,20 @@ export default function App() {
 
       if (nextCorrectCount >= 15) {
         // High-fidelity kids cheering and sparkles SFX
-        setTimeout(() => {
+        celebrationTimeoutRef.current = setTimeout(() => {
           audioEngine.playCelebration();
-        }, 600);
+        }, 300);
 
         // Transition to Certificate of Excellence screen after success animation settles
-        setTimeout(() => {
+        nextLevelTimeoutRef.current = setTimeout(() => {
           setShowCertificate(true);
-        }, 3200);
+          setState(prev => ({ ...prev, isCorrect: null }));
+        }, 2200);
       } else {
         // Advance automatically to the next level after celebration animation completes
-        setTimeout(() => {
+        nextLevelTimeoutRef.current = setTimeout(() => {
           advanceLevel();
-        }, 3200);
+        }, 1500);
       }
     } else {
       // WRONG ANSWER
@@ -263,7 +268,27 @@ export default function App() {
       // Reset error state after shake animation to allow re-selection
       setTimeout(() => {
         setState(prev => ({ ...prev, isCorrect: null }));
-      }, 1500);
+      }, 1000);
+    }
+  };
+
+  // Immediate transitions to next number when kid clicks next level button manually
+  const handleNextAction = () => {
+    // Clear pending automatic timeout timers
+    if (nextLevelTimeoutRef.current) {
+      clearTimeout(nextLevelTimeoutRef.current);
+      nextLevelTimeoutRef.current = null;
+    }
+    if (celebrationTimeoutRef.current) {
+      clearTimeout(celebrationTimeoutRef.current);
+      celebrationTimeoutRef.current = null;
+    }
+
+    if (correctCountInSession >= 15) {
+      setShowCertificate(true);
+      setState(prev => ({ ...prev, isCorrect: null }));
+    } else {
+      advanceLevel();
     }
   };
 
@@ -717,10 +742,14 @@ export default function App() {
                           <span>+10 EXP & 1 STAR</span>
                         </p>
 
-                        <div className="mt-6 flex items-center gap-2 px-5 py-2.5 bg-slate-100 rounded-xl text-[#2d3436] font-bold text-xs">
-                          <span>LEVEL UP</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </div>
+                        {/* Huge, extremely tactile, highly stable, kid-friendly next-level button! (Removed animate-bounce so children can tap it easily with no vertical movement) */}
+                        <button
+                          id="btn-next-level-adventure"
+                          onClick={handleNextAction}
+                          className="mt-7 w-full py-4 px-8 bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400 hover:from-amber-500 hover:to-emerald-500 text-slate-900 font-extrabold text-lg rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-[1.03] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border-2 border-white animate-pulse"
+                        >
+                          <span>{trans.nextLevelBtn}</span>
+                        </button>
                       </motion.div>
                     </motion.div>
                   )}

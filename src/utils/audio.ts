@@ -409,21 +409,193 @@ class AudioEngine {
     }
   }
 
-  // Localized high-quality text-to-speech for instructions & number reading
-  public speak(text: string, langCode: Language) {
-    if (!this.enabled) return;
-    try {
-      if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  private currentAudio: HTMLAudioElement | null = null;
+  private fileExistsCache = new Map<string, boolean>();
 
-      // Force resume to unblock any browser-stalled SpeechSynthesis state (Chrome/Safari bug)
-      window.speechSynthesis.resume();
-      
-      // CRITICAL: Only cancel if active speaking state exists.
-      // Calling cancel() on idle iOS/Safari completely locks speech synthesis permanently!
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
+  // Efficiently check if a local MP3 file exists using HEAD method
+  private async checkFileExists(url: string): Promise<boolean> {
+    if (this.fileExistsCache.has(url)) {
+      return this.fileExistsCache.get(url)!;
+    }
+    try {
+      const response = await fetch(url, { method: "HEAD" });
+      const exists = response.ok;
+      this.fileExistsCache.set(url, exists);
+      return exists;
+    } catch (e) {
+      this.fileExistsCache.set(url, false);
+      return false;
+    }
+  }
+
+  // Play an audio stream/file URL and handle potential browser constraints smoothly
+  private playAudioUrl(url: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.currentAudio) {
+        try {
+          this.currentAudio.pause();
+          this.currentAudio.currentTime = 0;
+        } catch (_) {}
+        this.currentAudio = null;
       }
 
+      const audio = new Audio(url);
+      this.currentAudio = audio;
+
+      audio.onended = () => {
+        if (this.currentAudio === audio) {
+          this.currentAudio = null;
+        }
+        resolve();
+      };
+
+      audio.onerror = (err) => {
+        if (this.currentAudio === audio) {
+          this.currentAudio = null;
+        }
+        reject(err);
+      };
+
+      audio.play().catch((err) => {
+        if (this.currentAudio === audio) {
+          this.currentAudio = null;
+        }
+        reject(err);
+      });
+    });
+  }
+
+  // Localized high-quality text-to-speech with a highly robust three-tier fallback architecture
+  public async speak(text: string, langCode: Language) {
+    if (!this.enabled) return;
+
+    // Reset SpeechSynthesis if active
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.resume();
+        if (window.speechSynthesis.speaking) {
+          window.speechSynthesis.cancel();
+        }
+      } catch (_) {}
+    }
+
+    // Reset current audio playback
+    if (this.currentAudio) {
+      try {
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+      } catch (_) {}
+      this.currentAudio = null;
+    }
+
+    let localPath: string | null = null;
+
+    // Detect and resolve local file paths if they exist
+    if (langCode === "ar") {
+      const trimmed = text.trim();
+
+      // Check if correct feedback phrase
+      const isCorrectText =
+        trimmed.includes("أحسنت") ||
+        trimmed.includes("ممتاز") ||
+        trimmed.includes("رائع") ||
+        trimmed.includes("صحيح") ||
+        trimmed.includes("عبقري");
+
+      // Check if wrong feedback phrase
+      const isWrongText =
+        trimmed.includes("مرة أخرى") ||
+        trimmed.includes("عد ببطء") ||
+        trimmed.includes("المحاولة") ||
+        trimmed.includes("لنعد");
+
+      // Arabic Alphabet mapping just in case letter audio is requested
+      const letterMap: Record<string, string> = {
+        "ألف": "alef", "ا": "alef",
+        "باء": "baa", "ب": "baa",
+        "تاء": "taa", "ت": "taa",
+        "ثاء": "thaa", "ث": "thaa",
+        "جيم": "jeem", "ج": "jeem",
+        "حاء": "haa", "ح": "haa",
+        "خاء": "khaa", "خ": "khaa",
+        "دال": "daal", "د": "daal",
+        "ذال": "thaal", "ذ": "thaal",
+        "راء": "raa", "ر": "raa",
+        "زاي": "zay", "ز": "zay",
+        "سين": "seen", "س": "seen",
+        "شين": "sheen", "ش": "sheen",
+        "صاد": "saad", "ص": "saad",
+        "ضاد": "daad", "ض": "daad",
+        "طاء": "taa_heavy", "ط": "taa_heavy",
+        "ظاء": "zaa_heavy", "ظ": "zaa_heavy",
+        "عين": "ayn", "ع": "ayn",
+        "غين": "ghayn", "غ": "ghayn",
+        "فاء": "faa", "ف": "faa",
+        "قاف": "qaaf", "ق": "qaaf",
+        "كاف": "kaaf", "ك": "kaaf",
+        "لام": "laam", "ل": "laam",
+        "ميم": "meem", "م": "meem",
+        "نون": "noon", "ن": "noon",
+        "هاء": "haa_soft", "ه": "haa_soft",
+        "واو": "waw", "و": "waw",
+        "ياء": "yaa", "ي": "yaa"
+      };
+
+      // Try to extract a numeric value
+      let resolvedNumber: number | null = null;
+      const numberWordsMap = NUMBER_WORDS["ar"];
+      for (const [num, word] of Object.entries(numberWordsMap)) {
+        if (trimmed === word) {
+          resolvedNumber = parseInt(num);
+          break;
+        }
+      }
+      const digitMatch = trimmed.match(/\d+/);
+      if (digitMatch) {
+        resolvedNumber = parseInt(digitMatch[0]);
+      }
+
+      if (isCorrectText) {
+        localPath = "/audio/arabic/ui/correct.mp3";
+      } else if (isWrongText) {
+        localPath = "/audio/arabic/ui/try-again.mp3";
+      } else if (resolvedNumber !== null) {
+        localPath = `/audio/arabic/numbers/${resolvedNumber}.mp3`;
+      } else if (letterMap[trimmed]) {
+        localPath = `/audio/arabic/letters/${letterMap[trimmed]}.mp3`;
+      }
+    }
+
+    // Tier 1: Local MP3 file check (Immediate play without network synthesis if file exists)
+    if (localPath) {
+      console.log(`[AudioEngine] Checking for local file: ${localPath}`);
+      const fileExists = await this.checkFileExists(localPath);
+      if (fileExists) {
+        try {
+          console.log(`[AudioEngine] Priority 1: Local file found! Playing: ${localPath}`);
+          await this.playAudioUrl(localPath);
+          return;
+        } catch (err) {
+          console.warn(`[AudioEngine] Local MP3 play failed for ${localPath}:`, err);
+        }
+      } else {
+        console.log(`[AudioEngine] Local file not found: ${localPath}`);
+      }
+    }
+
+    // Tier 2: Secure Server Proxy TTS (Streams MP3 from server to avoid browser limits and CORS blocks)
+    try {
+      const proxyUrl = `/api/tts?lang=${langCode}&text=${encodeURIComponent(text)}`;
+      console.log(`[AudioEngine] Priority 2: Streaming from Secure Server Proxy: "${text}"`);
+      await this.playAudioUrl(proxyUrl);
+      return;
+    } catch (err) {
+      console.warn(`[AudioEngine] Secure server proxy TTS stream failed for "${text}":`, err);
+    }
+
+    // Tier 3: SpeechSynthesis native browser API (Last-resort fallback)
+    console.log(`[AudioEngine] Priority 3: Falling back to browser SpeechSynthesis for "${text}"`);
+    try {
       const utterance = new SpeechSynthesisUtterance(text);
       this.activeUtterances.add(utterance);
 
@@ -435,68 +607,46 @@ class AudioEngine {
         this.activeUtterances.delete(utterance);
       };
 
-      const voices = window.speechSynthesis.getVoices();
-      let targetVoice = null;
-      
-      if (langCode === 'ar') {
-        // Extremely robust Arabic voice matching (looking for Arabic Eg, Saudi, general Arabic, or any ar voice)
-        targetVoice = voices.find(v => v.lang.toLowerCase() === 'ar-eg') ||
-                      voices.find(v => v.lang.toLowerCase() === 'ar-sa') ||
-                      voices.find(v => v.lang.toLowerCase().startsWith('ar-eg')) || 
-                      voices.find(v => v.lang.toLowerCase().startsWith('ar-sa')) || 
-                      voices.find(v => v.lang.toLowerCase().startsWith('ar-')) || 
-                      voices.find(v => v.lang.toLowerCase().startsWith('ar')) ||
-                      voices.find(v => v.name.toLowerCase().includes('arabic')) ||
-                      voices.find(v => v.name.toLowerCase().includes('maged')) ||
-                      voices.find(v => v.name.toLowerCase().includes('tarik'));
-        
-        // Use 'ar-EG' or 'ar-SA' as fallback which are universally recognized BCP-47 codes (raw 'ar' can fail on some devices!)
-        utterance.lang = targetVoice ? targetVoice.lang : 'ar-EG';
-        utterance.rate = 0.82; // Speak slowly & clearly for preschoolers
-        utterance.pitch = 1.15; // Cheerful friendly pitch
-      } else if (langCode === 'fr') {
-        targetVoice = voices.find(v => v.lang.toLowerCase().startsWith('fr-')) || 
-                      voices.find(v => v.lang.toLowerCase().startsWith('fr'));
-        utterance.lang = targetVoice ? targetVoice.lang : 'fr-FR';
-        utterance.rate = 0.85;
-        utterance.pitch = 1.05;
-      } else if (langCode === 'de') {
-        targetVoice = voices.find(v => v.lang.toLowerCase().startsWith('de-')) || 
-                      voices.find(v => v.lang.toLowerCase().startsWith('de'));
-        utterance.lang = targetVoice ? targetVoice.lang : 'de-DE';
-        utterance.rate = 0.85;
-        utterance.pitch = 1.0;
-      } else {
-        targetVoice = voices.find(v => v.lang.toLowerCase().startsWith('en-')) || 
-                      voices.find(v => v.lang.toLowerCase().startsWith('en'));
-        utterance.lang = targetVoice ? targetVoice.lang : 'en-US';
-        utterance.rate = 0.9;
-        utterance.pitch = 1.15;
-      }
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        const voices = window.speechSynthesis.getVoices();
+        let targetVoice = null;
 
-      if (targetVoice) {
-        utterance.voice = targetVoice;
-      }
-
-      // Speak after small micro-delay to let the browser cancel process settle
-      setTimeout(() => {
-        try {
-          if (window.speechSynthesis) {
-            window.speechSynthesis.resume();
-            window.speechSynthesis.speak(utterance);
-          }
-        } catch (err) {
-          console.warn("Error triggering speak inside timeout:", err);
+        if (langCode === "ar") {
+          targetVoice = voices.find(v => v.lang.toLowerCase().startsWith("ar"));
+          utterance.lang = targetVoice ? targetVoice.lang : "ar-EG";
+          utterance.rate = 0.82;
+          utterance.pitch = 1.15;
+        } else if (langCode === "fr") {
+          targetVoice = voices.find(v => v.lang.toLowerCase().startsWith("fr"));
+          utterance.lang = targetVoice ? targetVoice.lang : "fr-FR";
+          utterance.rate = 0.85;
+          utterance.pitch = 1.05;
+        } else if (langCode === "de") {
+          targetVoice = voices.find(v => v.lang.toLowerCase().startsWith("de"));
+          utterance.lang = targetVoice ? targetVoice.lang : "de-DE";
+          utterance.rate = 0.85;
+          utterance.pitch = 1.0;
+        } else {
+          targetVoice = voices.find(v => v.lang.toLowerCase().startsWith("en"));
+          utterance.lang = targetVoice ? targetVoice.lang : "en-US";
+          utterance.rate = 0.9;
+          utterance.pitch = 1.15;
         }
-      }, 120);
-    } catch (e) {
-      console.warn("SpeechSynthesis error:", e);
+
+        if (targetVoice) {
+          utterance.voice = targetVoice;
+        }
+
+        window.speechSynthesis.speak(utterance);
+      }
+    } catch (synthErr) {
+      console.error("[AudioEngine] Native speech synthesis last-resort fallback failed:", synthErr);
     }
   }
 
   // Explicitly unlock speech synthesis on first click gesture (iOS Safari requirement)
   public unlock() {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
       try {
         window.speechSynthesis.resume();
         const silentUtterance = new SpeechSynthesisUtterance("");

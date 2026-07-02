@@ -53,6 +53,7 @@ export interface TranslationSet {
   roundLabel: string;
   roundProgress: string;
   iframeAudioTip: string;
+  nextLevelBtn: string;
 }
 
 export const TRANSLATIONS: Record<Language, TranslationSet> = {
@@ -87,6 +88,7 @@ export const TRANSLATIONS: Record<Language, TranslationSet> = {
     roundLabel: "Round",
     roundProgress: "Round {round} of 3 • {left} numbers left",
     iframeAudioTip: "💡 If you do not hear the voice audio speaking, please open the game in a new tab (top right icon with arrow) to fully enable browser Speech Synthesis!",
+    nextLevelBtn: "Next Number ➔",
   },
   ar: {
     title: "مغامرة مطابقة الأرقام ثلاثية الأبعاد",
@@ -119,6 +121,7 @@ export const TRANSLATIONS: Record<Language, TranslationSet> = {
     roundLabel: "الجولة",
     roundProgress: "الجولة {round} من ٣ • متبقي {left} أرقام",
     iframeAudioTip: "💡 إذا لم تسمع الصوت العربي ينطق الأرقام، يرجى فتح اللعبة في نافذة جديدة مستقلة من زر التبويب الجديد في أعلى اليمين (مربع به سهم) لتفعيل الصوت بالكامل!",
+    nextLevelBtn: "الرقم التالي ➔",
   },
   fr: {
     title: "Aventure d'Association 3D",
@@ -151,6 +154,7 @@ export const TRANSLATIONS: Record<Language, TranslationSet> = {
     roundLabel: "Manche",
     roundProgress: "Manche {round} sur 3 • {left} restants",
     iframeAudioTip: "💡 Si vous n'entendez pas la voix, veuillez ouvrir le jeu dans un nouvel onglet (icône en haut à droite) pour activer la synthèse vocale !",
+    nextLevelBtn: "Nombre Suivant ➔",
   },
   de: {
     title: "3D Zahlen-Verbindungs Abenteuer",
@@ -183,5 +187,6 @@ export const TRANSLATIONS: Record<Language, TranslationSet> = {
     roundLabel: "Runde",
     roundProgress: "Runde {round} von 3 • {left} übrig",
     iframeAudioTip: "💡 Wenn du die Stimme nicht hörst, öffne das Spiel bitte in einem neuen Tab (Symbol oben rechts), um die Sprachausgabe zu aktivieren!",
+    nextLevelBtn: "Nächste Zahl ➔",
   }
 };

@@ -114,22 +114,24 @@ export const ThreeGame: React.FC<ThreeGameProps> = ({
   const createProceduralObject = (type: ObjectType): THREE.Group => {
     const group = new THREE.Group();
 
-    switch (type) {
+    // Force the object type to be 'apples' as requested by the user
+    const activeType = 'apples' as any;
+
+    switch (activeType) {
       case 'apples': {
-        // High-gloss wax shiny realistic red apple
+        // High-gloss realistic red apple
         const bodyGeo = new THREE.SphereGeometry(0.24, 24, 24);
-        bodyGeo.scale(1, 0.95, 1); // Slightly flattened top-to-bottom for realistic organic shape
+        bodyGeo.scale(1, 0.95, 1);
         const bodyMat = new THREE.MeshStandardMaterial({ 
           color: 0xef4444, 
           roughness: 0.1, 
-          metalness: 0.05,
-          flatShading: false
+          metalness: 0.05
         });
         const appleMesh = new THREE.Mesh(bodyGeo, bodyMat);
         appleMesh.castShadow = true;
         group.add(appleMesh);
 
-        // Apple bottom calyx (tiny black cylinder)
+        // Apple bottom calyx
         const calyxGeo = new THREE.CylinderGeometry(0.015, 0.03, 0.03, 5);
         const calyxMat = new THREE.MeshStandardMaterial({ color: 0x111827 });
         const calyx = new THREE.Mesh(calyxGeo, calyxMat);
@@ -144,9 +146,9 @@ export const ThreeGame: React.FC<ThreeGameProps> = ({
         stem.rotation.z = 0.25;
         group.add(stem);
 
-        // Beautiful organic green leaf with veins look (using curved shape)
+        // Green leaf
         const leafGeo = new THREE.SphereGeometry(0.06, 12, 12);
-        leafGeo.scale(1.5, 0.5, 0.2); // Flattened leaf
+        leafGeo.scale(1.5, 0.5, 0.2);
         const leafMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.3 });
         const leaf = new THREE.Mesh(leafGeo, leafMat);
         leaf.position.set(0.08, 0.26, 0);
@@ -155,724 +157,474 @@ export const ThreeGame: React.FC<ThreeGameProps> = ({
         break;
       }
       case 'stars': {
-        // High-fidelity 5-pointed 3D Star constructed using 5 gold cones!
-        // This looks incredibly realistic and stunningly beautiful!
-        const starGroup = new THREE.Group();
-        const goldMat = new THREE.MeshStandardMaterial({ 
-          color: 0xffd700, // Metallic Gold
-          roughness: 0.15,
-          metalness: 0.95, // High metalness for actual gold reflections!
+        // Bright glossy Orange fruit (replaces star)
+        const bodyGeo = new THREE.SphereGeometry(0.24, 24, 24);
+        const bodyMat = new THREE.MeshStandardMaterial({ 
+          color: 0xff7a00, 
+          roughness: 0.25, 
+          metalness: 0.05
         });
+        const orangeMesh = new THREE.Mesh(bodyGeo, bodyMat);
+        orangeMesh.castShadow = true;
+        group.add(orangeMesh);
 
-        // 5 points of the star
-        for (let i = 0; i < 5; i++) {
-          const angle = (i * 2 * Math.PI) / 5;
-          const coneGeo = new THREE.ConeGeometry(0.09, 0.28, 5);
-          const cone = new THREE.Mesh(coneGeo, goldMat);
-          
-          cone.position.set(Math.sin(angle) * 0.14, Math.cos(angle) * 0.14, 0);
-          cone.rotation.z = -angle; // Point outward
-          starGroup.add(cone);
-        }
+        // Tiny green leaf and stem on top
+        const stemGeo = new THREE.CylinderGeometry(0.012, 0.016, 0.1, 8);
+        const stemMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.8 });
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.y = 0.25;
+        stem.rotation.z = -0.15;
+        group.add(stem);
 
-        // Center pentagon fill
-        const centerGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.06, 5);
-        centerGeo.rotateX(Math.PI / 2);
-        const center = new THREE.Mesh(centerGeo, goldMat);
-        starGroup.add(center);
-
-        starGroup.traverse(child => {
-          if (child instanceof THREE.Mesh) child.castShadow = true;
-        });
-        group.add(starGroup);
+        const leafGeo = new THREE.SphereGeometry(0.055, 12, 12);
+        leafGeo.scale(1.4, 0.5, 0.18);
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.3 });
+        const leaf = new THREE.Mesh(leafGeo, leafMat);
+        leaf.position.set(-0.06, 0.26, 0.02);
+        leaf.rotation.set(0.1, 0, 0.5);
+        group.add(leaf);
         break;
       }
       case 'balloons': {
-        // Extremely glossy metallic child balloons
-        const balloonColors = [0xff4757, 0x2ed573, 0x1e90ff, 0xffa502, 0x9b59b6];
-        const randomColor = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+        // Red Strawberry cone/droplet shape (replaces balloons)
+        const strawbGroup = new THREE.Group();
+        const bodyGeo = new THREE.ConeGeometry(0.22, 0.44, 20);
+        bodyGeo.rotateX(Math.PI); 
+        const bodyMat = new THREE.MeshStandardMaterial({ 
+          color: 0xef233c, 
+          roughness: 0.15,
+          metalness: 0.1
+        });
+        const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+        bodyMesh.position.y = 0.05;
+        bodyMesh.castShadow = true;
+        strawbGroup.add(bodyMesh);
 
-        // High gloss metallic standard material
-        const bMat = new THREE.MeshStandardMaterial({ 
-          color: randomColor,
-          roughness: 0.05, // Highly reflective!
-          metalness: 0.65, // Metallic foil look!
+        // Green leaves crown on top
+        const crownMat = new THREE.MeshStandardMaterial({ color: 0x4caf50, roughness: 0.5 });
+        for (let i = 0; i < 5; i++) {
+          const leafAngle = (i * Math.PI * 2) / 5;
+          const crownLeafGeo = new THREE.ConeGeometry(0.05, 0.12, 5);
+          crownLeafGeo.rotateX(Math.PI / 2.5);
+          const crownLeaf = new THREE.Mesh(crownLeafGeo, crownMat);
+          crownLeaf.position.set(Math.sin(leafAngle) * 0.08, 0.25, Math.cos(leafAngle) * 0.08);
+          crownLeaf.rotation.y = -leafAngle;
+          strawbGroup.add(crownLeaf);
+        }
+
+        // Tiny stem on top
+        const stemGeo = new THREE.CylinderGeometry(0.01, 0.015, 0.08, 6);
+        const stemMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32 });
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.y = 0.28;
+        strawbGroup.add(stem);
+
+        // Tiny yellow seeds scattered on strawberry body
+        const seedGeo = new THREE.SphereGeometry(0.012, 4, 4);
+        seedGeo.scale(1, 1.8, 0.7);
+        const seedMat = new THREE.MeshBasicMaterial({ color: 0xffe066 });
+        
+        const seedPositions = [
+          [0.12, 0.1, 0.08], [-0.12, 0.1, -0.08], [0.08, 0.1, -0.12], [-0.08, 0.1, 0.12],
+          [0.14, -0.05, 0.02], [-0.14, -0.05, -0.02], [0.02, -0.05, 0.14], [-0.02, -0.05, -0.14],
+          [0.08, -0.12, 0.06], [-0.08, -0.12, -0.06], [0.06, -0.12, -0.08], [-0.06, -0.12, 0.08]
+        ];
+        seedPositions.forEach(([sx, sy, sz]) => {
+          const seed = new THREE.Mesh(seedGeo, seedMat);
+          seed.position.set(sx, sy, sz);
+          strawbGroup.add(seed);
         });
 
-        const bGeo = new THREE.SphereGeometry(0.24, 24, 24);
-        bGeo.scale(1, 1.25, 1); // Natural drop shape
-        const bMesh = new THREE.Mesh(bGeo, bMat);
-        bMesh.castShadow = true;
-        group.add(bMesh);
-
-        // Tie knot
-        const knotGeo = new THREE.ConeGeometry(0.04, 0.06, 6);
-        const knot = new THREE.Mesh(knotGeo, bMat);
-        knot.position.y = -0.31;
-        knot.rotation.x = Math.PI;
-        group.add(knot);
-
-        // Thread/string (flexible wave shape using cylinder)
-        const threadGeo = new THREE.CylinderGeometry(0.005, 0.005, 0.38, 4);
-        const threadMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0 });
-        const thread = new THREE.Mesh(threadGeo, threadMat);
-        thread.position.y = -0.5;
-        thread.rotation.z = 0.08; // Natural slant
-        group.add(thread);
+        group.add(strawbGroup);
         break;
       }
       case 'blocks': {
-        // High-fidelity LEGO-like bricks with 4 studs on top!
-        const blockColors = [0xe84118, 0x00a8ff, 0xfbc531, 0x4cd137, 0xe15f41];
-        const randomColor = blockColors[Math.floor(Math.random() * blockColors.length)];
-        const brickMat = new THREE.MeshStandardMaterial({ 
-          color: randomColor, 
+        // Beautiful crescent yellow banana composed of small connected, rotated segments (replaces blocks)
+        const bananaGroup = new THREE.Group();
+        const yellowMat = new THREE.MeshStandardMaterial({ color: 0xffeb3b, roughness: 0.3 });
+        const tipMat = new THREE.MeshStandardMaterial({ color: 0x3e2723, roughness: 0.8 });
+
+        const numSegments = 5;
+        for (let i = 0; i < numSegments; i++) {
+          const t = i / (numSegments - 1);
+          const angle = (t - 0.5) * Math.PI * 0.4; 
+          
+          const segGeo = new THREE.BoxGeometry(0.08, 0.18, 0.08);
+          const factor = 1.0 - Math.abs(t - 0.5) * 0.5;
+          segGeo.scale(factor, 1.1, factor);
+
+          const segMat = (i === 0 || i === numSegments - 1) ? tipMat : yellowMat;
+          const segment = new THREE.Mesh(segGeo, segMat);
+
+          const radius = 0.38;
+          segment.position.set(
+            Math.sin(angle) * radius,
+            (t - 0.5) * 0.32,
+            Math.cos(angle) * radius - radius
+          );
+          segment.rotation.z = -angle;
+          segment.castShadow = true;
+          bananaGroup.add(segment);
+        }
+        
+        bananaGroup.scale.set(1.1, 1.1, 1.1);
+        group.add(bananaGroup);
+        break;
+      }
+      case 'fish': {
+        // Red triangular slice of watermelon with a green rind and seeds (replaces fish)
+        const wmGroup = new THREE.Group();
+        const pulpMat = new THREE.MeshStandardMaterial({ color: 0xff3b30, roughness: 0.3 });
+        const rindMat = new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.5 });
+        const whiteRindMat = new THREE.MeshStandardMaterial({ color: 0xf4f9f4, roughness: 0.4 });
+        const seedMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 });
+
+        // Red Pulp: triangular box
+        const pulpGeo = new THREE.BoxGeometry(0.38, 0.24, 0.08);
+        const pulp = new THREE.Mesh(pulpGeo, pulpMat);
+        pulp.castShadow = true;
+        wmGroup.add(pulp);
+
+        // White Rind stripe at the bottom
+        const whiteRindGeo = new THREE.BoxGeometry(0.42, 0.03, 0.09);
+        const whiteRind = new THREE.Mesh(whiteRindGeo, whiteRindMat);
+        whiteRind.position.y = -0.135;
+        wmGroup.add(whiteRind);
+
+        // Green Rind at the very bottom
+        const rindGeo = new THREE.BoxGeometry(0.44, 0.05, 0.1);
+        const rind = new THREE.Mesh(rindGeo, rindMat);
+        rind.position.y = -0.17;
+        wmGroup.add(rind);
+
+        // 4 cute black seeds on the sides of the watermelon slice
+        const seedGeo = new THREE.SphereGeometry(0.012, 6, 6);
+        seedGeo.scale(1.5, 2.2, 0.8);
+
+        const s1 = new THREE.Mesh(seedGeo, seedMat);
+        s1.position.set(-0.08, -0.02, 0.045);
+        s1.rotation.z = -0.3;
+        
+        const s2 = new THREE.Mesh(seedGeo, seedMat);
+        s2.position.set(0.08, -0.02, 0.045);
+        s2.rotation.z = 0.3;
+
+        const s3 = new THREE.Mesh(seedGeo, seedMat);
+        s3.position.set(-0.08, -0.02, -0.045);
+        s3.rotation.z = -0.3;
+        
+        const s4 = new THREE.Mesh(seedGeo, seedMat);
+        s4.position.set(0.08, -0.02, -0.045);
+        s4.rotation.z = 0.3;
+
+        wmGroup.add(s1);
+        wmGroup.add(s2);
+        wmGroup.add(s3);
+        wmGroup.add(s4);
+
+        group.add(wmGroup);
+        break;
+      }
+      case 'cars': {
+        // High-gloss elegant light green-yellow pear (replaces cars)
+        const bodyGroup = new THREE.Group();
+        
+        // Lower big bulb
+        const lowerGeo = new THREE.SphereGeometry(0.2, 20, 20);
+        const pearMat = new THREE.MeshStandardMaterial({ 
+          color: 0xafdb2a, 
+          roughness: 0.15,
+          metalness: 0.02
+        });
+        const lowerMesh = new THREE.Mesh(lowerGeo, pearMat);
+        lowerMesh.castShadow = true;
+        bodyGroup.add(lowerMesh);
+
+        // Upper smaller bulb
+        const upperGeo = new THREE.SphereGeometry(0.12, 16, 16);
+        upperGeo.scale(1, 1.4, 1);
+        const upperMesh = new THREE.Mesh(upperGeo, pearMat);
+        upperMesh.position.y = 0.18;
+        upperMesh.castShadow = true;
+        bodyGroup.add(upperMesh);
+
+        // Brown wooden stem
+        const stemGeo = new THREE.CylinderGeometry(0.012, 0.018, 0.14, 6);
+        const stemMat = new THREE.MeshStandardMaterial({ color: 0x5c2c16, roughness: 0.8 });
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.set(0.02, 0.32, 0);
+        stem.rotation.z = 0.35;
+        bodyGroup.add(stem);
+
+        // Tiny green leaf
+        const leafGeo = new THREE.SphereGeometry(0.05, 10, 10);
+        leafGeo.scale(1.4, 0.4, 0.18);
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.3 });
+        const leaf = new THREE.Mesh(leafGeo, leafMat);
+        leaf.position.set(0.08, 0.31, 0.02);
+        leaf.rotation.set(0.1, 0, -0.5);
+        bodyGroup.add(leaf);
+
+        group.add(bodyGroup);
+        break;
+      }
+      case 'trees': {
+        // A cluster of dark-purple glossy grapes with green stem (replaces trees)
+        const grapeGroup = new THREE.Group();
+        const purpleMat = new THREE.MeshStandardMaterial({ 
+          color: 0x5c1d7e, 
+          roughness: 0.12,
+          metalness: 0.15
+        });
+        const stemMat = new THREE.MeshStandardMaterial({ color: 0x5c2c16 });
+
+        // Arrange 8 spheres in a cluster pointing downwards
+        const grapeGeo = new THREE.SphereGeometry(0.09, 12, 12);
+        const positions = [
+          [0, -0.16, 0], 
+          [-0.07, -0.07, 0.04], [0.07, -0.07, -0.04], [0, -0.07, 0.08], 
+          [-0.09, 0.03, 0.0], [0.09, 0.03, 0.0], [0, 0.03, -0.08], [0, 0.03, 0.08] 
+        ];
+
+        positions.forEach(([gx, gy, gz]) => {
+          const grape = new THREE.Mesh(grapeGeo, purpleMat);
+          grape.position.set(gx, gy, gz);
+          grape.castShadow = true;
+          grapeGroup.add(grape);
+        });
+
+        // Top stem
+        const stemGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.16, 6);
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.y = 0.12;
+        stem.rotation.z = 0.2;
+        grapeGroup.add(stem);
+
+        // Grape Green Leaf
+        const leafGeo = new THREE.SphereGeometry(0.07, 10, 10);
+        leafGeo.scale(1.3, 0.3, 1.3);
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.4 });
+        const leaf = new THREE.Mesh(leafGeo, leafMat);
+        leaf.position.set(-0.06, 0.1, -0.02);
+        leaf.rotation.set(0.1, 0, 0.6);
+        grapeGroup.add(leaf);
+
+        group.add(grapeGroup);
+        break;
+      }
+      case 'cats': {
+        // Bright yellow lemon with dimpled tips and a green leaf (replaces cats)
+        const lemonGroup = new THREE.Group();
+        const lemonMat = new THREE.MeshStandardMaterial({ 
+          color: 0xffd54f, 
+          roughness: 0.28,
+          metalness: 0.02
+        });
+
+        // Egg/oval shaped body
+        const bodyGeo = new THREE.SphereGeometry(0.22, 20, 20);
+        bodyGeo.scale(1.4, 0.95, 0.95);
+        const body = new THREE.Mesh(bodyGeo, lemonMat);
+        body.castShadow = true;
+        lemonGroup.add(body);
+
+        // Pointy ends
+        const tipGeo = new THREE.ConeGeometry(0.05, 0.08, 8);
+        tipGeo.rotateZ(Math.PI / 2);
+        
+        const leftTip = new THREE.Mesh(tipGeo, lemonMat);
+        leftTip.position.x = -0.31;
+        
+        const rightTip = new THREE.Mesh(tipGeo, lemonMat);
+        rightTip.position.x = 0.31;
+        rightTip.rotation.y = Math.PI;
+
+        lemonGroup.add(leftTip);
+        lemonGroup.add(rightTip);
+
+        // Tiny green stem and leaf on top
+        const stemGeo = new THREE.CylinderGeometry(0.012, 0.015, 0.08, 6);
+        const greenMat = new THREE.MeshStandardMaterial({ color: 0x1b5e20 });
+        const stem = new THREE.Mesh(stemGeo, greenMat);
+        stem.position.y = 0.23;
+        stem.rotation.z = -0.15;
+        lemonGroup.add(stem);
+
+        const leafGeo = new THREE.SphereGeometry(0.05, 10, 10);
+        leafGeo.scale(1.4, 0.4, 0.18);
+        const leaf = new THREE.Mesh(leafGeo, greenMat);
+        leaf.position.set(-0.06, 0.24, 0.02);
+        leaf.rotation.set(0.1, 0, 0.5);
+        lemonGroup.add(leaf);
+
+        group.add(lemonGroup);
+        break;
+      }
+      case 'dogs': {
+        // Twin hanging shiny red cherries (replaces dogs)
+        const cherryGroup = new THREE.Group();
+        const redMat = new THREE.MeshStandardMaterial({ 
+          color: 0xd90429, 
+          roughness: 0.08, 
+          metalness: 0.15
+        });
+        const greenMat = new THREE.MeshStandardMaterial({ color: 0x4caf50 });
+
+        // Left Cherry
+        const cLGeo = new THREE.SphereGeometry(0.15, 16, 16);
+        const cherryL = new THREE.Mesh(cLGeo, redMat);
+        cherryL.position.set(-0.15, -0.12, 0);
+        cherryL.castShadow = true;
+        cherryGroup.add(cherryL);
+
+        // Right Cherry
+        const cherryR = new THREE.Mesh(cLGeo, redMat);
+        cherryR.position.set(0.15, -0.12, 0);
+        cherryR.castShadow = true;
+        cherryGroup.add(cherryR);
+
+        // Angled stems
+        const stemGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.26, 6);
+        
+        const stemL = new THREE.Mesh(stemGeo, greenMat);
+        stemL.position.set(-0.07, 0.0, 0);
+        stemL.rotation.z = -0.5;
+        cherryGroup.add(stemL);
+
+        const stemR = new THREE.Mesh(stemGeo, greenMat);
+        stemR.position.set(0.07, 0.0, 0);
+        stemR.rotation.z = 0.5;
+        cherryGroup.add(stemR);
+
+        // Green Leaf at the joint
+        const leafGeo = new THREE.SphereGeometry(0.05, 10, 10);
+        leafGeo.scale(1.5, 0.4, 0.2);
+        const leaf = new THREE.Mesh(leafGeo, greenMat);
+        leaf.position.set(0.04, 0.12, 0.02);
+        leaf.rotation.set(0.1, 0.1, 0.4);
+        cherryGroup.add(leaf);
+
+        group.add(cherryGroup);
+        break;
+      }
+      case 'pandas': {
+        // Soft peach with realistic heart indentation/seam and green leaf (replaces pandas)
+        const peachGroup = new THREE.Group();
+        const peachMat = new THREE.MeshStandardMaterial({ 
+          color: 0xff8a65, 
+          roughness: 0.45,
+          metalness: 0.01
+        });
+
+        const lobLGeo = new THREE.SphereGeometry(0.18, 16, 16);
+        lobLGeo.scale(1, 1, 0.9);
+        const lobeL = new THREE.Mesh(lobLGeo, peachMat);
+        lobeL.position.x = -0.035;
+        lobeL.castShadow = true;
+        peachGroup.add(lobeL);
+
+        const lobeR = new THREE.Mesh(lobLGeo, peachMat);
+        lobeR.position.x = 0.035;
+        lobeR.castShadow = true;
+        peachGroup.add(lobeR);
+
+        // Brown Stem on top
+        const stemGeo = new THREE.CylinderGeometry(0.012, 0.015, 0.08, 6);
+        const stemMat = new THREE.MeshStandardMaterial({ color: 0x5c2c16 });
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.y = 0.19;
+        stem.rotation.z = 0.2;
+        peachGroup.add(stem);
+
+        // Leaf
+        const leafGeo = new THREE.SphereGeometry(0.055, 10, 10);
+        leafGeo.scale(1.4, 0.4, 0.18);
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x4caf50, roughness: 0.3 });
+        const leaf = new THREE.Mesh(leafGeo, leafMat);
+        leaf.position.set(0.06, 0.19, -0.02);
+        leaf.rotation.set(0.2, 0, -0.4);
+        peachGroup.add(leaf);
+
+        group.add(peachGroup);
+        break;
+      }
+      case 'bunnies': {
+        // Colorful kid-friendly stylized Pineapple (replaces bunnies)
+        const paGroup = new THREE.Group();
+        const bodyMat = new THREE.MeshStandardMaterial({ 
+          color: 0xffb74d, 
+          roughness: 0.35,
+          metalness: 0.05
+        });
+
+        // Main cylindrical pinecone body
+        const bodyGeo = new THREE.CylinderGeometry(0.16, 0.18, 0.36, 12);
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.castShadow = true;
+        paGroup.add(body);
+
+        // Add 3 decorative rings around body to create a textured pineapple look
+        const ringGeo = new THREE.TorusGeometry(0.17, 0.018, 8, 16);
+        ringGeo.rotateX(Math.PI / 2);
+        const ringMat = new THREE.MeshStandardMaterial({ color: 0xf57c00 });
+        
+        for (let j = 0; j < 3; j++) {
+          const r = new THREE.Mesh(ringGeo, ringMat);
+          r.position.y = -0.12 + j * 0.12;
+          paGroup.add(r);
+        }
+
+        // Green spiky crown leaves on top
+        const crownMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.4 });
+        const leafCount = 6;
+        for (let i = 0; i < leafCount; i++) {
+          const angle = (i * Math.PI * 2) / leafCount;
+          const leafConeGeo = new THREE.ConeGeometry(0.045, 0.22, 4);
+          leafConeGeo.rotateX(Math.PI / 6); 
+          const leafCone = new THREE.Mesh(leafConeGeo, crownMat);
+          
+          leafCone.position.set(Math.sin(angle) * 0.06, 0.26, Math.cos(angle) * 0.06);
+          leafCone.rotation.y = -angle;
+          paGroup.add(leafCone);
+        }
+
+        group.add(paGroup);
+        break;
+      }
+      case 'lions': {
+        // Deep purple plum (replaces lions)
+        const plumGroup = new THREE.Group();
+        const plumMat = new THREE.MeshStandardMaterial({ 
+          color: 0x4a148c, 
           roughness: 0.15,
           metalness: 0.1
         });
 
-        // Main block base
-        const brickGeo = new THREE.BoxGeometry(0.38, 0.22, 0.38);
-        const brick = new THREE.Mesh(brickGeo, brickMat);
-        brick.castShadow = true;
-        brick.receiveShadow = true;
-        group.add(brick);
-
-        // 4 studs on top of the Lego block
-        const studGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.04, 12);
-        const studPositions = [
-          [-0.1, 0.12, -0.1],
-          [0.1, 0.12, -0.1],
-          [-0.1, 0.12, 0.1],
-          [0.1, 0.12, 0.1]
-        ];
-
-        studPositions.forEach(([sx, sy, sz]) => {
-          const stud = new THREE.Mesh(studGeo, brickMat);
-          stud.position.set(sx, sy, sz);
-          stud.castShadow = true;
-          group.add(stud);
-        });
-        break;
-      }
-      case 'fish': {
-        // Detailed realistic goldfish with multiple fins and glowing scales!
-        const fishGroup = new THREE.Group();
-        const fishMat = new THREE.MeshStandardMaterial({ 
-          color: 0xff7f50, // Coral Goldfish orange
-          roughness: 0.2,
-          metalness: 0.45
-        });
-
-        // Fat fish body
-        const fishGeo = new THREE.SphereGeometry(0.22, 16, 16);
-        fishGeo.scale(1.4, 1.0, 0.65); // Elliptic body
-        const body = new THREE.Mesh(fishGeo, fishMat);
+        // Main body
+        const bodyGeo = new THREE.SphereGeometry(0.22, 20, 20);
+        bodyGeo.scale(1.05, 1.0, 1.0);
+        const body = new THREE.Mesh(bodyGeo, plumMat);
         body.castShadow = true;
-        fishGroup.add(body);
-
-        // Beautiful flowing tail fin
-        const tailGeo = new THREE.ConeGeometry(0.12, 0.24, 6);
-        tailGeo.scale(1, 1, 0.2); // Flat tail
-        const tail = new THREE.Mesh(tailGeo, fishMat);
-        tail.position.set(-0.34, -0.02, 0);
-        tail.rotation.z = Math.PI / 1.7; // Tilted backwards
-        fishGroup.add(tail);
-
-        // Dorsal fin on top
-        const dorsalGeo = new THREE.ConeGeometry(0.06, 0.16, 4);
-        dorsalGeo.scale(1, 1, 0.2);
-        const dorsal = new THREE.Mesh(dorsalGeo, fishMat);
-        dorsal.position.set(0.04, 0.2, 0);
-        dorsal.rotation.z = -Math.PI / 4;
-        fishGroup.add(dorsal);
-
-        // Left and right pectoral fins
-        const finGeo = new THREE.ConeGeometry(0.05, 0.12, 4);
-        finGeo.scale(1, 1, 0.2);
-        
-        const finL = new THREE.Mesh(finGeo, fishMat);
-        finL.position.set(0.1, -0.08, 0.16);
-        finL.rotation.set(0.5, 0, -0.5);
-        
-        const finR = new THREE.Mesh(finGeo, fishMat);
-        finR.position.set(0.1, -0.08, -0.16);
-        finR.rotation.set(-0.5, 0, -0.5);
-        
-        fishGroup.add(finL);
-        fishGroup.add(finR);
-
-        // Big shiny eyes
-        const eyeWhiteGeo = new THREE.SphereGeometry(0.045, 10, 10);
-        const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
-        const eyeBlackGeo = new THREE.SphereGeometry(0.025, 8, 8);
-        const eyeBlackMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.1 });
-
-        // Left eye
-        const eL1 = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
-        eL1.position.set(0.18, 0.06, 0.14);
-        const eL2 = new THREE.Mesh(eyeBlackGeo, eyeBlackMat);
-        eL2.position.set(0.2, 0.06, 0.16);
-        fishGroup.add(eL1);
-        fishGroup.add(eL2);
-
-        // Right eye
-        const eR1 = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
-        eR1.position.set(0.18, 0.06, -0.14);
-        const eR2 = new THREE.Mesh(eyeBlackGeo, eyeBlackMat);
-        eR2.position.set(0.2, 0.06, -0.16);
-        fishGroup.add(eR1);
-        fishGroup.add(eR2);
-
-        group.add(fishGroup);
-        break;
-      }
-      case 'cars': {
-        // Detailed miniature cartoon/realistic toy sedan car!
-        const carColors = [0xef4444, 0x3b82f6, 0xf59e0b, 0x10b981];
-        const randomColor = carColors[Math.floor(Math.random() * carColors.length)];
-
-        const carGroup = new THREE.Group();
-        const bodyMat = new THREE.MeshStandardMaterial({ 
-          color: randomColor, 
-          roughness: 0.15,
-          metalness: 0.15
-        });
-
-        // Rounded body/chassis
-        const baseGeo = new THREE.BoxGeometry(0.46, 0.13, 0.26);
-        const base = new THREE.Mesh(baseGeo, bodyMat);
-        base.position.y = 0.08;
-        base.castShadow = true;
-        carGroup.add(base);
-
-        // Rounded cabin with black windows
-        const cabinGeo = new THREE.BoxGeometry(0.26, 0.12, 0.22);
-        const cabin = new THREE.Mesh(cabinGeo, bodyMat);
-        cabin.position.set(-0.02, 0.19, 0);
-        cabin.castShadow = true;
-        carGroup.add(cabin);
-
-        // Black windows on the cabin
-        const windowGeo = new THREE.BoxGeometry(0.18, 0.08, 0.23);
-        const windowMat = new THREE.MeshStandardMaterial({ color: 0x1e272e, roughness: 0.05 });
-        const win = new THREE.Mesh(windowGeo, windowMat);
-        win.position.set(-0.02, 0.19, 0);
-        carGroup.add(win);
-
-        // Front bumper / Chrome grill
-        const bumperGeo = new THREE.BoxGeometry(0.04, 0.05, 0.2);
-        const chromeMat = new THREE.MeshStandardMaterial({ color: 0xdcdde1, roughness: 0.1, metalness: 0.9 });
-        const bumper = new THREE.Mesh(bumperGeo, chromeMat);
-        bumper.position.set(0.24, 0.06, 0);
-        carGroup.add(bumper);
-
-        // Glowing yellow headlights
-        const lightGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.02, 8);
-        lightGeo.rotateZ(Math.PI / 2);
-        const lightMat = new THREE.MeshStandardMaterial({ color: 0xfffa65, emissive: 0xfffa65, emissiveIntensity: 0.7 });
-        
-        const headL = new THREE.Mesh(lightGeo, lightMat);
-        headL.position.set(0.24, 0.1, 0.09);
-        const headR = headL.clone();
-        headR.position.z = -0.09;
-        carGroup.add(headL);
-        carGroup.add(headR);
-
-        // Red back tail lights
-        const tailLightMat = new THREE.MeshStandardMaterial({ color: 0xff2e1f, emissive: 0xff2e1f, emissiveIntensity: 0.4 });
-        const tailL = new THREE.Mesh(lightGeo, tailLightMat);
-        tailL.position.set(-0.24, 0.1, 0.09);
-        const tailR = tailL.clone();
-        tailR.position.z = -0.09;
-        carGroup.add(tailL);
-        carGroup.add(tailR);
-
-        // 4 detailed wheels with chrome hubcaps!
-        const wheelGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.04, 16);
-        wheelGeo.rotateX(Math.PI / 2);
-        const tireMat = new THREE.MeshStandardMaterial({ color: 0x2f3640, roughness: 0.8 });
-        
-        const hubGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.045, 8);
-        hubGeo.rotateX(Math.PI / 2);
-
-        const wheelPositions = [
-          [-0.14, 0.03, 0.135],
-          [0.14, 0.03, 0.135],
-          [-0.14, 0.03, -0.135],
-          [0.14, 0.03, -0.135]
-        ];
-
-        wheelPositions.forEach(([wx, wy, wz]) => {
-          const tire = new THREE.Mesh(wheelGeo, tireMat);
-          tire.position.set(wx, wy, wz);
-          tire.castShadow = true;
-          
-          // Add chrome hubcap inside wheel
-          const hub = new THREE.Mesh(hubGeo, chromeMat);
-          hub.position.set(wx, wy, wz);
-          carGroup.add(tire);
-          carGroup.add(hub);
-        });
-
-        group.add(carGroup);
-        break;
-      }
-      case 'cats': {
-        // Cute little orange kitten with ears, whiskers, tail
-        const catGroup = new THREE.Group();
-        const orangeMat = new THREE.MeshStandardMaterial({ color: 0xf57215, roughness: 0.5 });
-        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
-        const blackMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 });
-        const pinkMat = new THREE.MeshStandardMaterial({ color: 0xffa4b4, roughness: 0.5 });
-
-        // Body
-        const bodyGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.24, 12);
-        const body = new THREE.Mesh(bodyGeo, orangeMat);
-        body.position.y = 0.12;
-        body.castShadow = true;
-        catGroup.add(body);
-
-        // Head
-        const headGeo = new THREE.SphereGeometry(0.15, 16, 16);
-        const head = new THREE.Mesh(headGeo, orangeMat);
-        head.position.y = 0.29;
-        head.castShadow = true;
-        catGroup.add(head);
-
-        // Ears (Cones)
-        const earGeo = new THREE.ConeGeometry(0.045, 0.1, 4);
-        const earL = new THREE.Mesh(earGeo, orangeMat);
-        earL.position.set(-0.08, 0.4, 0.02);
-        earL.rotation.z = 0.2;
-        const earR = new THREE.Mesh(earGeo, orangeMat);
-        earR.position.set(0.08, 0.4, 0.02);
-        earR.rotation.z = -0.2;
-        catGroup.add(earL);
-        catGroup.add(earR);
-
-        // Inner Ears
-        const innerEarGeo = new THREE.ConeGeometry(0.025, 0.07, 4);
-        const innerEarL = new THREE.Mesh(innerEarGeo, pinkMat);
-        innerEarL.position.set(-0.08, 0.39, 0.04);
-        innerEarL.rotation.z = 0.2;
-        const innerEarR = new THREE.Mesh(innerEarGeo, pinkMat);
-        innerEarR.position.set(0.08, 0.39, 0.04);
-        innerEarR.rotation.z = -0.2;
-        catGroup.add(innerEarL);
-        catGroup.add(innerEarR);
-
-        // Snout & Nose
-        const snoutGeo = new THREE.SphereGeometry(0.04, 8, 8);
-        snoutGeo.scale(1.2, 0.8, 0.8);
-        const snout = new THREE.Mesh(snoutGeo, whiteMat);
-        snout.position.set(0, 0.26, 0.11);
-        catGroup.add(snout);
-
-        const noseGeo = new THREE.SphereGeometry(0.02, 8, 8);
-        const nose = new THREE.Mesh(noseGeo, pinkMat);
-        nose.position.set(0, 0.27, 0.14);
-        catGroup.add(nose);
-
-        // Eyes
-        const eyeGeo = new THREE.SphereGeometry(0.02, 8, 8);
-        const eyeL = new THREE.Mesh(eyeGeo, blackMat);
-        eyeL.position.set(-0.05, 0.31, 0.12);
-        const eyeR = new THREE.Mesh(eyeGeo, blackMat);
-        eyeR.position.set(0.05, 0.31, 0.12);
-        catGroup.add(eyeL);
-        catGroup.add(eyeR);
-
-        // Whiskers (thin cylinders)
-        const whiskerGeo = new THREE.CylinderGeometry(0.003, 0.003, 0.12, 4);
-        whiskerGeo.rotateZ(Math.PI / 2);
-        
-        const wL1 = new THREE.Mesh(whiskerGeo, whiteMat);
-        wL1.position.set(-0.09, 0.25, 0.12);
-        wL1.rotation.y = 0.2;
-        const wL2 = new THREE.Mesh(whiskerGeo, whiteMat);
-        wL2.position.set(-0.09, 0.23, 0.12);
-        wL2.rotation.y = 0.2;
-        wL2.rotation.z = -0.15;
-
-        const wR1 = new THREE.Mesh(whiskerGeo, whiteMat);
-        wR1.position.set(0.09, 0.25, 0.12);
-        wR1.rotation.y = -0.2;
-        const wR2 = new THREE.Mesh(whiskerGeo, whiteMat);
-        wR2.position.set(0.09, 0.23, 0.12);
-        wR2.rotation.y = -0.2;
-        wR2.rotation.z = 0.15;
-
-        catGroup.add(wL1);
-        catGroup.add(wL2);
-        catGroup.add(wR1);
-        catGroup.add(wR2);
-
-        // Tail
-        const tailGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.18, 6);
-        tailGeo.rotateX(Math.PI / 4);
-        const tail = new THREE.Mesh(tailGeo, orangeMat);
-        tail.position.set(0, 0.08, -0.15);
-        catGroup.add(tail);
-
-        group.add(catGroup);
-        break;
-      }
-      case 'dogs': {
-        // Cute warm-brown puppy with floppy ears and snout
-        const dogGroup = new THREE.Group();
-        const brownMat = new THREE.MeshStandardMaterial({ color: 0x8d6e63, roughness: 0.6 });
-        const darkBrownMat = new THREE.MeshStandardMaterial({ color: 0x5d4037, roughness: 0.6 });
-        const blackMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.2 });
-        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
-
-        // Body
-        const bodyGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.24, 12);
-        const body = new THREE.Mesh(bodyGeo, brownMat);
-        body.position.y = 0.12;
-        body.castShadow = true;
-        dogGroup.add(body);
-
-        // Head
-        const headGeo = new THREE.SphereGeometry(0.15, 16, 16);
-        const head = new THREE.Mesh(headGeo, brownMat);
-        head.position.y = 0.29;
-        head.castShadow = true;
-        dogGroup.add(head);
-
-        // Floppy Ears (elongated boxes)
-        const earGeo = new THREE.BoxGeometry(0.04, 0.14, 0.06);
-        const earL = new THREE.Mesh(earGeo, darkBrownMat);
-        earL.position.set(-0.14, 0.26, 0.02);
-        earL.rotation.z = 0.25;
-        const earR = new THREE.Mesh(earGeo, darkBrownMat);
-        earR.position.set(0.14, 0.26, 0.02);
-        earR.rotation.z = -0.25;
-        dogGroup.add(earL);
-        dogGroup.add(earR);
-
-        // Snout
-        const snoutGeo = new THREE.BoxGeometry(0.08, 0.06, 0.08);
-        const snout = new THREE.Mesh(snoutGeo, whiteMat);
-        snout.position.set(0, 0.25, 0.12);
-        dogGroup.add(snout);
-
-        // Black Nose on Snout
-        const noseGeo = new THREE.SphereGeometry(0.022, 8, 8);
-        const nose = new THREE.Mesh(noseGeo, blackMat);
-        nose.position.set(0, 0.27, 0.16);
-        dogGroup.add(nose);
-
-        // Eyes
-        const eyeGeo = new THREE.SphereGeometry(0.025, 8, 8);
-        const eyeL = new THREE.Mesh(eyeGeo, blackMat);
-        eyeL.position.set(-0.05, 0.32, 0.12);
-        const eyeR = new THREE.Mesh(eyeGeo, blackMat);
-        eyeR.position.set(0.05, 0.32, 0.12);
-        dogGroup.add(eyeL);
-        dogGroup.add(eyeR);
-
-        // Tail
-        const tailGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.14, 6);
-        tailGeo.rotateX(-Math.PI / 4);
-        const tail = new THREE.Mesh(tailGeo, brownMat);
-        tail.position.set(0, 0.1, -0.15);
-        dogGroup.add(tail);
-
-        group.add(dogGroup);
-        break;
-      }
-      case 'pandas': {
-        // High-fidelity baby panda (Black & White)
-        const pandaGroup = new THREE.Group();
-        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
-        const blackMat = new THREE.MeshStandardMaterial({ color: 0x1f1f1f, roughness: 0.4 });
-
-        // Body (White with black limbs)
-        const bodyGeo = new THREE.SphereGeometry(0.14, 16, 16);
-        const body = new THREE.Mesh(bodyGeo, whiteMat);
-        body.position.y = 0.12;
-        body.castShadow = true;
-        pandaGroup.add(body);
-
-        // Black legs/arms
-        const limbGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.1, 8);
-        const limbL = new THREE.Mesh(limbGeo, blackMat);
-        limbL.position.set(-0.1, 0.05, 0.05);
-        const limbR = new THREE.Mesh(limbGeo, blackMat);
-        limbR.position.set(0.1, 0.05, 0.05);
-        const armL = new THREE.Mesh(limbGeo, blackMat);
-        armL.position.set(-0.12, 0.16, 0.05);
-        armL.rotation.z = Math.PI / 3;
-        const armR = new THREE.Mesh(limbGeo, blackMat);
-        armR.position.set(0.12, 0.16, 0.05);
-        armR.rotation.z = -Math.PI / 3;
-
-        pandaGroup.add(limbL);
-        pandaGroup.add(limbR);
-        pandaGroup.add(armL);
-        pandaGroup.add(armR);
-
-        // Head
-        const headGeo = new THREE.SphereGeometry(0.15, 16, 16);
-        const head = new THREE.Mesh(headGeo, whiteMat);
-        head.position.y = 0.28;
-        head.castShadow = true;
-        pandaGroup.add(head);
-
-        // Ears (Round black spheres)
-        const earGeo = new THREE.SphereGeometry(0.045, 12, 12);
-        const earL = new THREE.Mesh(earGeo, blackMat);
-        earL.position.set(-0.11, 0.39, 0);
-        const earR = new THREE.Mesh(earGeo, blackMat);
-        earR.position.set(0.11, 0.39, 0);
-        pandaGroup.add(earL);
-        pandaGroup.add(earR);
-
-        // Black Eye Patches (Flat cylinders)
-        const patchGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.015, 12);
-        patchGeo.rotateX(Math.PI / 2);
-        const patchL = new THREE.Mesh(patchGeo, blackMat);
-        patchL.position.set(-0.05, 0.29, 0.13);
-        patchL.rotation.z = 0.25;
-        const patchR = new THREE.Mesh(patchGeo, blackMat);
-        patchR.position.set(0.05, 0.29, 0.13);
-        patchR.rotation.z = -0.25;
-        pandaGroup.add(patchL);
-        pandaGroup.add(patchR);
-
-        // Tiny white eyes inside patches
-        const eyeGeo = new THREE.SphereGeometry(0.014, 8, 8);
-        const eyeL = new THREE.Mesh(eyeGeo, whiteMat);
-        eyeL.position.set(-0.05, 0.3, 0.14);
-        const eyeR = new THREE.Mesh(eyeGeo, whiteMat);
-        eyeR.position.set(0.05, 0.3, 0.14);
-        pandaGroup.add(eyeL);
-        pandaGroup.add(eyeR);
-
-        // Snout & black nose
-        const snoutGeo = new THREE.SphereGeometry(0.03, 8, 8);
-        const snout = new THREE.Mesh(snoutGeo, whiteMat);
-        snout.position.set(0, 0.24, 0.13);
-        pandaGroup.add(snout);
-
-        const noseGeo = new THREE.SphereGeometry(0.016, 8, 8);
-        const nose = new THREE.Mesh(noseGeo, blackMat);
-        nose.position.set(0, 0.25, 0.155);
-        pandaGroup.add(nose);
-
-        group.add(pandaGroup);
-        break;
-      }
-      case 'bunnies': {
-        // Cute pink and white bunny with huge long ears
-        const bunnyGroup = new THREE.Group();
-        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xfff0f5, roughness: 0.5 });
-        const pinkMat = new THREE.MeshStandardMaterial({ color: 0xffa4b4, roughness: 0.5 });
-        const blackMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 });
-
-        // Body (rounded fluffy sphere)
-        const bodyGeo = new THREE.SphereGeometry(0.14, 16, 16);
-        bodyGeo.scale(1, 1, 1.1);
-        const body = new THREE.Mesh(bodyGeo, whiteMat);
-        body.position.y = 0.12;
-        body.castShadow = true;
-        bunnyGroup.add(body);
-
-        // Head
-        const headGeo = new THREE.SphereGeometry(0.13, 16, 16);
-        const head = new THREE.Mesh(headGeo, whiteMat);
-        head.position.y = 0.27;
-        head.castShadow = true;
-        bunnyGroup.add(head);
-
-        // Huge Long Ears (scaled capsules/boxes)
-        const earGeo = new THREE.BoxGeometry(0.03, 0.18, 0.04);
-        const earL = new THREE.Mesh(earGeo, whiteMat);
-        earL.position.set(-0.05, 0.4, 0);
-        earL.rotation.z = -0.08;
-        const earR = new THREE.Mesh(earGeo, whiteMat);
-        earR.position.set(0.05, 0.4, 0);
-        earR.rotation.z = 0.08;
-        bunnyGroup.add(earL);
-        bunnyGroup.add(earR);
-
-        // Inner Pink Ears
-        const innerEarGeo = new THREE.BoxGeometry(0.016, 0.14, 0.01);
-        const innerL = new THREE.Mesh(innerEarGeo, pinkMat);
-        innerL.position.set(-0.05, 0.39, 0.02);
-        innerL.rotation.z = -0.08;
-        const innerR = new THREE.Mesh(innerEarGeo, pinkMat);
-        innerR.position.set(0.05, 0.39, 0.02);
-        innerR.rotation.z = 0.08;
-        bunnyGroup.add(innerL);
-        bunnyGroup.add(innerR);
-
-        // Snout
-        const snoutGeo = new THREE.SphereGeometry(0.025, 8, 8);
-        const snout = new THREE.Mesh(snoutGeo, whiteMat);
-        snout.position.set(0, 0.24, 0.11);
-        bunnyGroup.add(snout);
-
-        const noseGeo = new THREE.SphereGeometry(0.015, 8, 8);
-        const nose = new THREE.Mesh(noseGeo, pinkMat);
-        nose.position.set(0, 0.25, 0.13);
-        bunnyGroup.add(nose);
-
-        // Large cute shiny eyes
-        const eyeGeo = new THREE.SphereGeometry(0.022, 8, 8);
-        const eyeL = new THREE.Mesh(eyeGeo, blackMat);
-        eyeL.position.set(-0.05, 0.29, 0.1);
-        const eyeR = new THREE.Mesh(eyeGeo, blackMat);
-        eyeR.position.set(0.05, 0.29, 0.1);
-        bunnyGroup.add(eyeL);
-        bunnyGroup.add(eyeR);
-
-        // Fluffy ball tail
-        const tailGeo = new THREE.SphereGeometry(0.04, 8, 8);
-        const tail = new THREE.Mesh(tailGeo, whiteMat);
-        tail.position.set(0, 0.1, -0.14);
-        bunnyGroup.add(tail);
-
-        group.add(bunnyGroup);
-        break;
-      }
-      case 'lions': {
-        // Cute lion cub with golden body and big brown mane
-        const lionGroup = new THREE.Group();
-        const goldMat = new THREE.MeshStandardMaterial({ color: 0xffb300, roughness: 0.5 }); // Golden yellow
-        const maneMat = new THREE.MeshStandardMaterial({ color: 0xd84315, roughness: 0.7 }); // Orange-brown
-        const blackMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 });
-        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
-
-        // Body
-        const bodyGeo = new THREE.CylinderGeometry(0.12, 0.13, 0.22, 12);
-        const body = new THREE.Mesh(bodyGeo, goldMat);
-        body.position.y = 0.11;
-        body.castShadow = true;
-        lionGroup.add(body);
-
-        // Big Fluffy Mane (Torus behind the head)
-        const maneGeo = new THREE.TorusGeometry(0.12, 0.08, 8, 16);
-        const mane = new THREE.Mesh(maneGeo, maneMat);
-        mane.position.set(0, 0.28, -0.04);
-        mane.castShadow = true;
-        lionGroup.add(mane);
-
-        // Head (inside mane)
-        const headGeo = new THREE.SphereGeometry(0.14, 16, 16);
-        const head = new THREE.Mesh(headGeo, goldMat);
-        head.position.y = 0.28;
-        head.castShadow = true;
-        lionGroup.add(head);
-
-        // Round Ears
-        const earGeo = new THREE.SphereGeometry(0.035, 8, 8);
-        const earL = new THREE.Mesh(earGeo, goldMat);
-        earL.position.set(-0.1, 0.38, 0);
-        const earR = new THREE.Mesh(earGeo, goldMat);
-        earR.position.set(0.1, 0.38, 0);
-        lionGroup.add(earL);
-        lionGroup.add(earR);
-
-        // Snout
-        const snoutGeo = new THREE.SphereGeometry(0.035, 8, 8);
-        const snout = new THREE.Mesh(snoutGeo, whiteMat);
-        snout.position.set(0, 0.24, 0.11);
-        lionGroup.add(snout);
-
-        const noseGeo = new THREE.SphereGeometry(0.016, 8, 8);
-        const nose = new THREE.Mesh(noseGeo, blackMat);
-        nose.position.set(0, 0.25, 0.14);
-        lionGroup.add(nose);
-
-        // Eyes
-        const eyeGeo = new THREE.SphereGeometry(0.024, 8, 8);
-        const eyeL = new THREE.Mesh(eyeGeo, blackMat);
-        eyeL.position.set(-0.05, 0.3, 0.11);
-        const eyeR = new THREE.Mesh(eyeGeo, blackMat);
-        eyeR.position.set(0.05, 0.3, 0.11);
-        lionGroup.add(eyeL);
-        lionGroup.add(eyeR);
-
-        // Tail with fluffy orange-brown tip
-        const tailGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.16, 6);
-        tailGeo.rotateX(Math.PI / 4);
-        const tail = new THREE.Mesh(tailGeo, goldMat);
-        tail.position.set(0, 0.08, -0.14);
-        lionGroup.add(tail);
-
-        const tipGeo = new THREE.SphereGeometry(0.025, 6, 6);
-        const tip = new THREE.Mesh(tipGeo, maneMat);
-        tip.position.set(0, 0.03, -0.19);
-        lionGroup.add(tip);
-
-        group.add(lionGroup);
-        break;
-      }
-      case 'trees': {
-        // Organic deciduous/fruit tree with brown trunk, fluffy green spheres, and tiny red apples!
-        const treeGroup = new THREE.Group();
-
-        // Sturdy bark/trunk
-        const trunkGeo = new THREE.CylinderGeometry(0.04, 0.06, 0.22, 8);
-        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c2c16, roughness: 0.9 });
-        const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-        trunk.position.y = 0.11;
-        trunk.castShadow = true;
-        treeGroup.add(trunk);
-
-        // Fluffy overlapping layers of organic foliage
-        const foliageGroup = new THREE.Group();
-        const fMatDark = new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.5 }); // Dark green
-        const fMatMid = new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.5 });  // Medium green
-        const fMatLight = new THREE.MeshStandardMaterial({ color: 0x4caf50, roughness: 0.5 }); // Bright green
-
-        const sphereGeo = new THREE.SphereGeometry(0.18, 12, 12);
-
-        // Base cluster
-        const leaf1 = new THREE.Mesh(sphereGeo, fMatDark);
-        leaf1.position.set(0, 0.32, 0);
-        foliageGroup.add(leaf1);
-
-        const leaf2 = new THREE.Mesh(sphereGeo, fMatMid);
-        leaf2.position.set(-0.11, 0.26, 0.08);
-        leaf2.scale.set(0.85, 0.85, 0.85);
-        foliageGroup.add(leaf2);
-
-        const leaf3 = new THREE.Mesh(sphereGeo, fMatMid);
-        leaf3.position.set(0.11, 0.28, -0.06);
-        leaf3.scale.set(0.85, 0.85, 0.85);
-        foliageGroup.add(leaf3);
-
-        const leaf4 = new THREE.Mesh(sphereGeo, fMatLight);
-        leaf4.position.set(0.02, 0.42, 0.02);
-        leaf4.scale.set(0.75, 0.75, 0.75);
-        foliageGroup.add(leaf4);
-
-        // Add 4-5 tiny cute red apples hanging from the tree branches!
-        const miniAppleGeo = new THREE.SphereGeometry(0.035, 8, 8);
-        const miniAppleMat = new THREE.MeshStandardMaterial({ color: 0xf44336, roughness: 0.2 });
-        
-        const applePositions = [
-          [-0.08, 0.22, 0.08],
-          [0.08, 0.24, -0.06],
-          [-0.02, 0.28, -0.1],
-          [0.06, 0.31, 0.1]
-        ];
-
-        applePositions.forEach(([ax, ay, az]) => {
-          const miniApple = new THREE.Mesh(miniAppleGeo, miniAppleMat);
-          miniApple.position.set(ax, ay, az);
-          foliageGroup.add(miniApple);
-        });
-
-        foliageGroup.traverse(child => {
-          if (child instanceof THREE.Mesh) child.castShadow = true;
-        });
-
-        treeGroup.add(foliageGroup);
-        group.add(treeGroup);
+        plumGroup.add(body);
+
+        // Tiny Stem
+        const stemGeo = new THREE.CylinderGeometry(0.012, 0.015, 0.1, 6);
+        const stemMat = new THREE.MeshStandardMaterial({ color: 0x5c2c16 });
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.y = 0.23;
+        stem.rotation.z = -0.2;
+        plumGroup.add(stem);
+
+        // Green leaf
+        const leafGeo = new THREE.SphereGeometry(0.05, 10, 10);
+        leafGeo.scale(1.4, 0.4, 0.18);
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.3 });
+        const leaf = new THREE.Mesh(leafGeo, leafMat);
+        leaf.position.set(-0.06, 0.22, 0.02);
+        leaf.rotation.set(0.1, 0, 0.5);
+        plumGroup.add(leaf);
+
+        group.add(plumGroup);
         break;
       }
     }
@@ -880,57 +632,142 @@ export const ThreeGame: React.FC<ThreeGameProps> = ({
     return group;
   };
 
-  // Layout items beautifully on their respective sub-islands based on quantity count
+  // Layout items beautifully on top of each option island in a clean, highly-organized concentric 2D grid/concentric ring pattern on the grass surface
   const arrangeObjectsOnIsland = (group: THREE.Group, count: number, type: ObjectType) => {
     // Clear out any previous objects
     const itemsGroup = new THREE.Group();
+    itemsGroup.name = "itemsGroup"; // Explicitly name it to reference securely in the animation loop
+    itemsGroup.position.y = 0.15; // Elevate so objects sit perfectly on top of the 0.3-height option island top
     group.add(itemsGroup);
 
-    if (count === 1) {
-      // Centered
-      const obj = createProceduralObject(type);
-      obj.position.set(0, 0.35, 0);
-      itemsGroup.add(obj);
-    } else if (count <= 4) {
-      // Grid pattern
-      const spacing = 0.35;
-      const positions = [
-        [-spacing, 0.35, -spacing],
-        [spacing, 0.35, -spacing],
-        [-spacing, 0.35, spacing],
-        [spacing, 0.35, spacing]
-      ];
-      for (let i = 0; i < count; i++) {
-        const obj = createProceduralObject(type);
-        obj.position.set(positions[i][0], positions[i][1], positions[i][2]);
-        itemsGroup.add(obj);
+    // Dynamic rotation helper to make sure everything faces the camera/child perfectly
+    const applyFacingRotation = (obj: THREE.Object3D) => {
+      if (type === 'fish' || type === 'cars') {
+        obj.rotation.y = -Math.PI / 2; // Rotate 90 degrees so they face forward
+      } else {
+        obj.rotation.y = 0; // Already facing forward (Z axis)
       }
-    } else if (count <= 10) {
-      // Circle pattern
-      const radius = 0.45;
-      for (let i = 0; i < count; i++) {
-        const angle = (i / count) * Math.PI * 2;
-        const obj = createProceduralObject(type);
-        obj.position.set(Math.cos(angle) * radius, 0.35, Math.sin(angle) * radius);
-        obj.rotation.y = -angle;
-        itemsGroup.add(obj);
-      }
-    } else {
-      // Double circle / spiral pattern for larger numbers (11-20)
-      for (let i = 0; i < count; i++) {
-        const factor = i / count;
-        const radius = 0.28 + factor * 0.35; // spiraling outward
-        const angle = factor * Math.PI * 4.8; // spiral wraps multiple times
-        const obj = createProceduralObject(type);
-        
-        // Random slight height variation to make balloons feel layered
-        const isBalloon = type === 'balloons';
-        const heightOffset = isBalloon ? 0.35 + (i % 3) * 0.15 : 0.35;
+    };
 
-        obj.position.set(Math.cos(angle) * radius, heightOffset, Math.sin(angle) * radius);
-        itemsGroup.add(obj);
+    // Calculate dynamic scale so items are big, beautiful, and fit on the island
+    let itemScale = 0.95;
+    if (count > 15) itemScale = 0.62;
+    else if (count > 10) itemScale = 0.68;
+    else if (count > 5) itemScale = 0.78;
+    else if (count > 3) itemScale = 0.86;
+
+    // Generate coordinates on a circle of radius 0.95 (since island radius is 1.3, this leaves 0.35 margin!)
+    const getIslandPositions = (c: number, maxRadius: number = 0.95): {x: number, z: number}[] => {
+      const positions: {x: number, z: number}[] = [];
+      
+      if (c === 1) {
+        return [{ x: 0, z: 0 }];
       }
-    }
+      
+      if (c === 2) {
+        return [{ x: -0.45, z: 0 }, { x: 0.45, z: 0 }];
+      }
+      
+      if (c === 3) {
+        return [
+          { x: 0, z: -0.4 },
+          { x: -0.45, z: 0.3 },
+          { x: 0.45, z: 0.3 }
+        ];
+      }
+      
+      if (c === 4) {
+        return [
+          { x: -0.45, z: -0.45 },
+          { x: 0.45, z: -0.45 },
+          { x: -0.45, z: 0.45 },
+          { x: 0.45, z: 0.45 }
+        ];
+      }
+      
+      if (c === 5) {
+        return [
+          { x: 0, z: 0 },
+          { x: -0.5, z: -0.5 },
+          { x: 0.5, z: -0.5 },
+          { x: -0.5, z: 0.5 },
+          { x: 0.5, z: 0.5 }
+        ];
+      }
+
+      // For counts 6 to 20, distribute them in perfectly centered concentric rings for gorgeous symmetry
+      let innerCount = 0;
+      let outerCount = c;
+      
+      if (c <= 8) {
+        innerCount = 1;
+        outerCount = c - 1;
+      } else if (c <= 12) {
+        innerCount = 3;
+        outerCount = c - 3;
+      } else if (c <= 16) {
+        innerCount = 5;
+        outerCount = c - 5;
+      } else {
+        innerCount = 6;
+        outerCount = c - 6;
+      }
+
+      // Inner ring
+      if (innerCount === 1) {
+        positions.push({ x: 0, z: 0 });
+      } else if (innerCount > 1) {
+        const innerRadius = maxRadius * 0.4;
+        for (let i = 0; i < innerCount; i++) {
+          const angle = (i * Math.PI * 2) / innerCount;
+          positions.push({
+            x: Math.cos(angle) * innerRadius,
+            z: Math.sin(angle) * innerRadius
+          });
+        }
+      }
+
+      // Outer ring
+      const outerRadius = maxRadius * 0.82;
+      for (let i = 0; i < outerCount; i++) {
+        const angle = (i * Math.PI * 2) / outerCount;
+        positions.push({
+          x: Math.cos(angle) * outerRadius,
+          z: Math.sin(angle) * outerRadius
+        });
+      }
+
+      return positions;
+    };
+
+    const positions = getIslandPositions(count);
+
+    positions.forEach((pos, idx) => {
+      const obj = createProceduralObject(type);
+      obj.scale.set(itemScale, itemScale, itemScale);
+
+      // Slightly lift the object on Y so its bottom sits on the grass, rather than intersecting
+      const baseY = itemScale * 0.22;
+      
+      obj.position.set(pos.x, baseY, pos.z);
+      obj.userData.baseY = baseY; // Save the base Y height for bounce animations!
+      applyFacingRotation(obj);
+
+      // Give a tiny, natural rotation twist to non-cars/non-fish to make them look hand-crafted and playful
+      if (type !== 'fish' && type !== 'cars') {
+        obj.rotation.y = (idx * 0.45) % (Math.PI * 2);
+      }
+
+      itemsGroup.add(obj);
+    });
+
+    // Ensure all procedural meshes inside the group cast/receive shadows beautifully
+    itemsGroup.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
   };
 
   // Sparkly celebration confetti particles
@@ -994,9 +831,9 @@ export const ThreeGame: React.FC<ThreeGameProps> = ({
 
     // 2. Camera setup
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    // Position camera dynamically to overlook the floating islands
-    camera.position.set(0, 4.8, 11);
-    camera.lookAt(0, 1.2, 0);
+    // Position camera dynamically at a high angle to overlook the floating islands with clear depth separation
+    camera.position.set(0, 7.5, 10.5);
+    camera.lookAt(0, 0.4, 0.5);
     cameraRef.current = camera;
 
     // 3. Renderer setup
@@ -1131,36 +968,65 @@ export const ThreeGame: React.FC<ThreeGameProps> = ({
     mainIsland.add(numberCard);
     numberCardRef.current = numberCard;
 
-    // 10. Construct the four interactive Option Islands in foreground
-    // Position options horizontally based on modern landscape layout
-    const optionIslands: THREE.Group[] = [];
-    const islandSpacingX = 2.4; // Spacious layout for preschool touch
-    const positionsX = [-1.5 * islandSpacingX, -0.5 * islandSpacingX, 0.5 * islandSpacingX, 1.5 * islandSpacingX];
+     // 10. Construct the four interactive Option Islands in foreground
+     // Position options horizontally with spacious layout to prevent overlapping
+     const optionIslands: THREE.Group[] = [];
+     const islandSpacingX = 2.65; // Balanced spacing so islands are fully centered, distinct, and within clickable bounds
+     const positionsX = [-1.5 * islandSpacingX, -0.5 * islandSpacingX, 0.5 * islandSpacingX, 1.5 * islandSpacingX];
+ 
+     // Distinct, high-contrast pastel colors for each option island to make them extremely recognizable for kids
+     const islandColors = [0xff5e5e, 0x3498db, 0xf1c40f, 0x9b59b6]; // Red, Blue, Yellow, Purple
+ 
+     options.forEach((optValue, idx) => {
+       const subIsland = new THREE.Group();
+       // Curved layout: Outer islands are slightly forward & lower, making a nice visual amphitheater arc
+       const depthOffset = idx === 0 || idx === 3 ? 1.4 : 1.1;
+       const heightY = idx === 0 || idx === 3 ? -0.3 : -0.1;
+       
+       subIsland.position.set(positionsX[idx], heightY, depthOffset);
+       scene.add(subIsland);
+       optionIslands.push(subIsland);
 
-    options.forEach((optValue, idx) => {
-      const subIsland = new THREE.Group();
-      // Curved layout: Outer islands are slightly forward & lower, making a nice visual amphitheater arc
-      const depthOffset = idx === 0 || idx === 3 ? 1.5 : 1.2;
-      const heightY = idx === 0 || idx === 3 ? -1.0 : -0.8;
-      
-      subIsland.position.set(positionsX[idx], heightY, depthOffset);
-      scene.add(subIsland);
-      optionIslands.push(subIsland);
+        // Beautiful 3D Floating Island mesh for each option
+        // Top grassy/flat surface with the unique option color
+        const islandTopGeo = new THREE.CylinderGeometry(1.3, 1.45, 0.3, 12);
+        const islandTopMat = new THREE.MeshToonMaterial({ 
+          color: islandColors[idx]
+        });
+        const islandTop = new THREE.Mesh(islandTopGeo, islandTopMat);
+        islandTop.receiveShadow = true;
+        subIsland.add(islandTop);
 
-      // Low poly grass disk
-      const subGrassGeo = new THREE.CylinderGeometry(0.9, 1.0, 0.22, 12);
-      const subGrassMat = new THREE.MeshToonMaterial({ color: 0x86efac }); // Slightly lighter green
-      const subGrass = new THREE.Mesh(subGrassGeo, subGrassMat);
-      subGrass.receiveShadow = true;
-      subGrass.castShadow = true;
-      subIsland.add(subGrass);
+        // Rocky dirt bottom pointing downwards
+        const islandRockGeo = new THREE.ConeGeometry(1.4, 1.2, 12);
+        const islandRockMat = new THREE.MeshToonMaterial({ color: 0x8d6e63 }); // earthy brown
+        const islandRock = new THREE.Mesh(islandRockGeo, islandRockMat);
+        islandRock.position.y = -0.65;
+        islandRock.rotation.x = Math.PI;
+        islandRock.castShadow = true;
+        subIsland.add(islandRock);
 
-      // Rocky base
-      const subRockGeo = new THREE.ConeGeometry(0.95, 1.0, 12);
-      const subRockBase = new THREE.Mesh(subRockGeo, rockMat);
-      subRockBase.position.y = -0.5;
-      subRockBase.rotation.x = Math.PI;
-      subIsland.add(subRockBase);
+        // Generous transparent hit box cylinder for flawless, instant click/touch registration
+        const hitBoxGeo = new THREE.CylinderGeometry(1.5, 1.5, 2.0, 8);
+        const hitBoxMat = new THREE.MeshBasicMaterial({ 
+          transparent: true, 
+          opacity: 0, 
+          depthWrite: false 
+        });
+        const hitBox = new THREE.Mesh(hitBoxGeo, hitBoxMat);
+        hitBox.name = "hitBox";
+        hitBox.position.y = 0.5; // Centers around the grassy top and fruits
+        subIsland.add(hitBox);
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
 
       // Add custom target data so the Raycaster knows what option value this is!
       subIsland.userData = { count: optValue, originalY: heightY, index: idx };
@@ -1225,19 +1091,12 @@ export const ThreeGame: React.FC<ThreeGameProps> = ({
           }
         }
 
-        // Animate the tiny procedural child objects on the islands (float/spin)
-        // Check if there is a group of objects
-        if (island.children[2]) {
-          island.children[2].children.forEach((obj, objIdx) => {
-            const spinFactor = 0.002 + objIdx * 0.0003;
-            obj.rotation.y = time * spinFactor;
-            
-            // If balloons, make them sway like wind is blowing
-            if (objectType === 'balloons') {
-              obj.rotation.z = Math.sin(time * 0.0015 + objIdx) * 0.12;
-            } else {
-              // Gentle hop/bounce
-              obj.position.y = (objectType === 'balloons' ? obj.position.y : 0.35) + Math.sin(time * 0.003 + objIdx) * 0.03;
+        // Keep objects completely static and fixed as requested by the user
+        const itemsGroup = island.getObjectByName("itemsGroup");
+        if (itemsGroup) {
+          itemsGroup.children.forEach((obj) => {
+            if (obj.userData.baseY !== undefined) {
+              obj.position.y = obj.userData.baseY;
             }
           });
         }
@@ -1281,10 +1140,11 @@ export const ThreeGame: React.FC<ThreeGameProps> = ({
         cameraRef.current.aspect = w / h;
         // Dynamically shift camera distance on ultra-narrow portrait phone screens
         if (w < h) {
-          cameraRef.current.position.set(0, 5.2, 14); // Zoom out so everything fits portrait layout
+          cameraRef.current.position.set(0, 8.5, 12.5); // Steep high angle for portrait layout
         } else {
-          cameraRef.current.position.set(0, 4.8, 11); // Standard desktop/tablet distance
+          cameraRef.current.position.set(0, 7.5, 10.5); // Steep high angle for landscape/desktop distance
         }
+        cameraRef.current.lookAt(0, 0.4, 0.5);
         cameraRef.current.updateProjectionMatrix();
         rendererRef.current.setSize(w, h);
       }
